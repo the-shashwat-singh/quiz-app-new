@@ -387,16 +387,18 @@ export default function HomePage() {
         onClose={handleCloseNotification}
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
       >
-        {notification && (
-          <Alert 
-            onClose={handleCloseNotification} 
-            severity={notification.severity} 
-            variant="filled"
-            sx={{ width: '100%' }}
-          >
-            {notification.message}
-          </Alert>
-        )}
+        <div>
+          {notification && (
+            <Alert 
+              onClose={handleCloseNotification} 
+              severity={notification.severity} 
+              variant="filled"
+              sx={{ width: '100%' }}
+            >
+              {notification.message}
+            </Alert>
+          )}
+        </div>
       </Snackbar>
     </>
   );

@@ -100,14 +100,14 @@ export default function LeaderboardPage() {
       
       return {
         ...result,
+        id: result.id || `${result.regNumber}-${result.timestamp}`, // Ensure each result has a unique ID
         date: result.date || new Date(result.timestamp).toISOString().split('T')[0],
-        studentName: result.name || 'Unknown Student',
+        studentName: result.name || getStudentNameSync(result.regNumber) || 'Unknown Student',
         quizTitle: result.quizTitle || 'Regular Quiz',
         regularScore: regularScore,
         bonusScore: bonusScore,
         tabSwitchPenalties: tabSwitchPenalties,
         penaltyPoints: penaltyPoints,
-        // Store both the raw score and the final score with penalties
         rawScore: regularScore + bonusScore,
         score: totalScore
       };
@@ -154,12 +154,12 @@ export default function LeaderboardPage() {
       filtered = filtered.filter(r => r.quizTitle === quizId);
     }
 
-    // Sort by final score (with penalties) descending, then by timestamp
+    // Sort by score (with penalties) descending, then by timestamp descending for same scores
     filtered.sort((a, b) => {
       if (b.score !== a.score) {
         return b.score - a.score;
       }
-      return b.timestamp - a.timestamp;
+      return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
     });
 
     setFilteredResults(filtered);

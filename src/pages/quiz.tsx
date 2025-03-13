@@ -306,13 +306,10 @@ export default function QuizPage() {
       });
     });
     
-    // Clear any previous quiz results for this student to avoid duplicates
-    const existingResults = JSON.parse(localStorage.getItem('quizResults') || '[]');
-    const filteredResults = existingResults.filter((r: any) => r.regNumber !== regNumber);
-    
     // Store results for leaderboard
     const now = new Date();
     const quizResult = {
+      id: `${regNumber}-${now.getTime()}`, // Add unique ID for each attempt
       regNumber,
       name: studentName,
       regularScore: finalRegularScoreWithPenalties,
@@ -322,12 +319,15 @@ export default function QuizPage() {
       difficultyScores,
       tabSwitchPenalties,
       timestamp: now.toISOString(),
-      date: now.toISOString().split('T')[0]
+      date: now.toISOString().split('T')[0],
+      quizTitle: quizSettings?.title || 'Regular Quiz'
     };
     
-    filteredResults.push(quizResult);
-    localStorage.setItem('quizResults', JSON.stringify(filteredResults));
-    console.log('Updated leaderboard data:', filteredResults);
+    // Get existing results and add new result
+    const existingResults = JSON.parse(localStorage.getItem('quizResults') || '[]');
+    existingResults.push(quizResult);
+    localStorage.setItem('quizResults', JSON.stringify(existingResults));
+    console.log('Updated leaderboard data:', existingResults);
     
     // Store detailed quiz data for the report
     const quizData = {
