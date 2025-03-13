@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
+import { supabase } from '../lib/supabaseClient';
 import { Question } from '../models/Question';
-import { supabaseService } from '../services/supabase';
 
 export const useQuestions = () => {
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -8,23 +8,26 @@ export const useQuestions = () => {
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    // Fetch initial questions
     fetchQuestions();
-
-    // Subscribe to real-time updates
-    const subscription = supabaseService.subscribeToQuestions((payload) => {
-      if (payload.eventType === 'INSERT') {
-        setQuestions(prev => [...prev, payload.new]);
-      } else if (payload.eventType === 'UPDATE') {
-        setQuestions(prev => 
-          prev.map(q => q.id === payload.new.id ? payload.new : q)
-        );
-      } else if (payload.eventType === 'DELETE') {
-        setQuestions(prev => 
-          prev.filter(q => q.id !== payload.old.id)
-        );
-      }
-    });
+    
+    const subscription = supabase
+      .channel('questions')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'questions'
+        },
+        (payload) => {
+          if (payload.eventType === 'INSERT') {
+            setQuestions(prev => [payload.new as Question, ...prev]);
+          } else if (payload.eventType === 'DELETE') {
+            setQuestions(prev => prev.filter(q => q.id !== payload.old.id));
+          }
+        }
+      )
+      .subscribe();
 
     return () => {
       subscription.unsubscribe();
@@ -34,8 +37,13 @@ export const useQuestions = () => {
   const fetchQuestions = async () => {
     try {
       setLoading(true);
-      const data = await supabaseService.getQuestions();
-      setQuestions(data);
+      const { data, error } = await supabase
+        .from('questions')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setQuestions(data || []);
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Failed to fetch questions'));
     } finally {
@@ -43,37 +51,31 @@ export const useQuestions = () => {
     }
   };
 
-  const addQuestion = async (question: Omit<Question, 'id'>) => {
+  const addQuestion = async (question: Omit<Question, 'id' | 'created_at'>) => {
     try {
-      const newQuestion = await supabaseService.addQuestion(question);
-      setQuestions(prev => [...prev, newQuestion]);
-      return newQuestion;
+      const { data, error } = await supabase
+        .from('questions')
+        .insert([question])
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
     } catch (err) {
-      setError(err instanceof Error ? err : new Error('Failed to add question'));
-      throw err;
+      throw err instanceof Error ? err : new Error('Failed to add question');
     }
   };
 
-  const updateQuestion = async (id: number, question: Partial<Question>) => {
+  const deleteQuestion = async (id: string) => {
     try {
-      const updatedQuestion = await supabaseService.updateQuestion(id, question);
-      setQuestions(prev => 
-        prev.map(q => q.id === id ? updatedQuestion : q)
-      );
-      return updatedQuestion;
-    } catch (err) {
-      setError(err instanceof Error ? err : new Error('Failed to update question'));
-      throw err;
-    }
-  };
+      const { error } = await supabase
+        .from('questions')
+        .delete()
+        .eq('id', id);
 
-  const deleteQuestion = async (id: number) => {
-    try {
-      await supabaseService.deleteQuestion(id);
-      setQuestions(prev => prev.filter(q => q.id !== id));
+      if (error) throw error;
     } catch (err) {
-      setError(err instanceof Error ? err : new Error('Failed to delete question'));
-      throw err;
+      throw err instanceof Error ? err : new Error('Failed to delete question');
     }
   };
 
@@ -82,7 +84,6 @@ export const useQuestions = () => {
     loading,
     error,
     addQuestion,
-    updateQuestion,
     deleteQuestion,
     refreshQuestions: fetchQuestions
   };
