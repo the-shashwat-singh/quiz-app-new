@@ -1,13 +1,14 @@
 export interface Question {
-  id: number;
+  id: string;
   text: string;
-  options: string[];
-  correctAnswer: number;
-  difficulty: 'easy' | 'medium' | 'difficult';
-  timeLimit: number;
-  isStrict?: boolean;
-  explanation?: string; // Explanation for the correct answer
-  isBonus?: boolean; // Flag for bonus questions
+  answer_options: string[];
+  correct_answer: string;
+  difficulty: 'easy' | 'medium' | 'hard';
+  time_limit: number;
+  is_strict: boolean;
+  explanation?: string;
+  is_bonus: boolean;
+  created_at: string;
 }
 
 // Quiz Settings interface
@@ -65,7 +66,7 @@ export const updateTimeLimits = (difficulty: 'easy' | 'medium' | 'difficult', ti
   
   // Update additional questions
   const updatedAdditionalQuestions = additionalQuestions.map((q: Question) =>
-    q.difficulty === difficulty ? { ...q, timeLimit } : q
+    q.difficulty === difficulty ? { ...q, time_limit: timeLimit } : q
   );
   setLocalStorage('additionalQuestions', JSON.stringify(updatedAdditionalQuestions));
 
@@ -78,9 +79,9 @@ export const updateTimeLimits = (difficulty: 'easy' | 'medium' | 'difficult', ti
   defaultQuestionsToModify.forEach(q => {
     const existingMod = modifiedQuestions.find((mq: Question) => mq.id === q.id);
     if (existingMod) {
-      existingMod.timeLimit = timeLimit;
+      existingMod.time_limit = timeLimit;
     } else {
-      modifiedQuestions.push({ ...q, timeLimit });
+      modifiedQuestions.push({ ...q, time_limit: timeLimit });
     }
   });
   
@@ -91,89 +92,100 @@ export const updateTimeLimits = (difficulty: 'easy' | 'medium' | 'difficult', ti
 export const defaultQuestions: Question[] = [
   // Easy Level Questions (1-10)
   {
-    id: 1,
+    id: "1",
     text: "Which of the following best describes an array?",
-    options: [
+    answer_options: [
       "A data structure that stores elements in contiguous memory locations",
       "A structure that allows dynamic resizing",
       "A collection of nodes connected by pointers",
       "A non-sequential storage structure"
     ],
-    correctAnswer: 0,
+    correct_answer: "A data structure that stores elements in contiguous memory locations",
     difficulty: "easy",
-    timeLimit: 20,
+    time_limit: 20,
+    is_strict: true,
     explanation: "An array is a data structure that stores elements in contiguous (adjacent) memory locations, allowing for efficient access by index.",
-    isStrict: true
+    is_bonus: false,
+    created_at: "2024-04-01T12:00:00"
   },
   {
-    id: 2,
+    id: "2",
     text: "Which data structure follows the Last In First Out (LIFO) principle?",
-    options: [
+    answer_options: [
       "Queue",
       "Stack",
       "Linked list",
       "Tree"
     ],
-    correctAnswer: 1,
+    correct_answer: "Stack",
     difficulty: "easy",
-    timeLimit: 20,
+    time_limit: 20,
+    is_strict: true,
     explanation: "A stack follows LIFO principle where the last element added is the first one to be removed.",
-    isStrict: true
+    is_bonus: false,
+    created_at: "2024-04-01T12:00:00"
   },
   {
-    id: 3,
+    id: "3",
     text: "In a binary search tree (BST), the left subtree of a node contains values that are:",
-    options: [
+    answer_options: [
       "Greater than the node",
       "Equal to the node",
       "Less than the node",
       "Randomly organized"
     ],
-    correctAnswer: 2,
+    correct_answer: "Less than the node",
     difficulty: "easy",
-    timeLimit: 20,
+    time_limit: 20,
+    is_strict: true,
     explanation: "In a BST, all values in the left subtree must be less than the node's value. This property helps in efficient searching.",
-    isStrict: true
+    is_bonus: false,
+    created_at: "2024-04-01T12:00:00"
   },
   {
-    id: 4,
+    id: "4",
     text: "Which C++ keyword is used to include a standard library header file?",
-    options: [
+    answer_options: [
       "import",
       "include",
       "require",
       "using"
     ],
-    correctAnswer: 1,
+    correct_answer: "include",
     difficulty: "easy",
-    timeLimit: 20,
+    time_limit: 20,
+    is_strict: true,
     explanation: "The #include preprocessor directive is used to include header files in C++.",
-    isStrict: true
+    is_bonus: false,
+    created_at: "2024-04-01T12:00:00"
   },
   {
-    id: 5,
+    id: "5",
     text: "What is the primary purpose of a C++ namespace?",
-    options: [
+    answer_options: [
       "To allocate memory dynamically",
       "To avoid naming conflicts",
       "To speed up program execution",
       "To provide runtime error handling"
     ],
-    correctAnswer: 1,
+    correct_answer: "To avoid naming conflicts",
     difficulty: "easy",
-    timeLimit: 20,
+    time_limit: 20,
+    is_strict: true,
     explanation: "Namespaces provide a way to avoid naming conflicts by creating a scope where identifiers can be placed.",
-    isStrict: true
+    is_bonus: false,
+    created_at: "2024-04-01T12:00:00"
   },
   {
-    id: 6,
+    id: "6",
     text: "Which operator is used for output in C++?",
-    options: [
+    answer_options: [
       ">>",
       "<<",
       "=>",
       "=="
     ],
+    correct_answer: "<<",
     correctAnswer: 1,
     difficulty: "easy",
     timeLimit: 20,
