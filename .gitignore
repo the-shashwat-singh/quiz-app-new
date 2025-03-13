@@ -23,6 +23,7 @@ yarn-debug.log*
 yarn-error.log*
 
 # local env files
+.env
 .env*.local
 
 # vercel
@@ -30,5 +31,21 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
-next-env.d.ts 
-node_modules
+next-env.d.ts
+
+# IDE
+.vscode/
+.idea/
+
+# Create React App files (to be removed)
+/src/App.css
+/src/App.js
+/src/components/QuestionManager.css
+/src/components/QuestionManager.js
+/src/components/Quiz.css
+/src/components/Quiz.js
+/src/index.css
+/src/index.js
+/public/favicon.ico
+/public/index.html
+/public/manifest.json

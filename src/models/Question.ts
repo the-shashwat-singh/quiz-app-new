@@ -625,49 +625,49 @@ const bonusQuestions: Question[] = [
   }
 ];
 
-// Get all questions (including modifications)
+// Get all questions from local storage
 export const getAllQuestions = (): Question[] => {
   const additionalQuestions = JSON.parse(getLocalStorage('additionalQuestions'));
   const modifiedQuestions = JSON.parse(getLocalStorage('modifiedQuestions'));
   
-  // Apply modifications to default questions
-  const modifiedDefaultQuestions = defaultQuestions.map(q => {
-    const modified = modifiedQuestions.find((mq: Question) => mq.id === q.id);
-    return modified || q;
+  // Combine default questions with additional and modified questions
+  const allQuestions = [...defaultQuestions];
+  
+  // Apply modifications
+  modifiedQuestions.forEach((mod: Question) => {
+    const index = allQuestions.findIndex(q => q.id === mod.id);
+    if (index !== -1) {
+      allQuestions[index] = { ...allQuestions[index], ...mod };
+    }
   });
-
-  return [...modifiedDefaultQuestions, ...additionalQuestions];
+  
+  // Add additional questions
+  allQuestions.push(...additionalQuestions);
+  
+  return allQuestions;
 };
 
-// Get random questions for quiz
+// Get random questions
 export function getRandomQuestions(totalQuestions: number = 10): Question[] {
-  // Get all questions
   const allQuestions = getAllQuestions();
-  
-  // Ensure we don't try to get more questions than available
-  const maxQuestions = Math.min(totalQuestions, allQuestions.length);
-  
-  // Shuffle all questions
-  const shuffledQuestions = [...allQuestions].sort(() => Math.random() - 0.5);
-  
-  // Return the specified number of questions
-  return shuffledQuestions.slice(0, maxQuestions);
+  const shuffled = shuffleArray([...allQuestions]);
+  return shuffled.slice(0, totalQuestions);
 }
 
-// Get a random bonus question for the high-stakes round
+// Get a random bonus question
 export const getRandomBonusQuestion = (): Question => {
-  const randomIndex = Math.floor(Math.random() * bonusQuestions.length);
-  return bonusQuestions[randomIndex];
+  const bonusQuestions = getAllQuestions().filter(q => q.isBonus);
+  return bonusQuestions[Math.floor(Math.random() * bonusQuestions.length)];
 };
 
 // Helper function to shuffle array
 const shuffleArray = (array: Question[]): Question[] => {
-  const shuffled = [...array];
-  for (let i = shuffled.length - 1; i > 0; i--) {
+  const newArray = [...array];
+  for (let i = newArray.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
   }
-  return shuffled;
+  return newArray;
 };
 
 // Export questions for backward compatibility

@@ -29,6 +29,8 @@ import { QuizResultWithDate } from '../types/quiz';
 import { calculateAnalytics, formatDate } from '../utils/analytics';
 import { getStudentName } from '../models/Students';
 import { getSessions } from '../models/Sessions';
+import QuestionAdmin from '../components/QuestionAdmin';
+import DatabaseTest from '../components/DatabaseTest';
 
 // Icons
 import DashboardIcon from '@mui/icons-material/Dashboard';
@@ -379,6 +381,11 @@ export default function AdminPage() {
             <Typography variant="body1" color="text.secondary">
               Manage your quiz application, students, and view analytics
             </Typography>
+          </Box>
+
+          {/* Database Connection Test */}
+          <Box sx={{ mb: 4 }}>
+            <DatabaseTest />
           </Box>
 
           {/* Quick Actions */}
